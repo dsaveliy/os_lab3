@@ -17,7 +17,7 @@ public:
     void Send(T value) {
         std::unique_lock<std::mutex> lock(mutex);
         not_full.wait(lock, [this] {
-            return closed || static_cast<int>(queue.size()) < capacity; // çàùèòà îò "ëîæíûõ ïðîáóæäåíèé"
+            return closed || static_cast<int>(queue.size()) < capacity; // Ã§Ã Ã¹Ã¨Ã²Ã  Ã®Ã² "Ã«Ã®Ã¦Ã­Ã»Ãµ Ã¯Ã°Ã®Ã¡Ã³Ã¦Ã¤Ã¥Ã­Ã¨Ã©"
             }
         );
         if (closed) {
@@ -30,10 +30,10 @@ public:
     std::pair<T, bool> Recv() {
         std::unique_lock<std::mutex> lock(mutex);
         not_empty.wait(lock, [this] {
-            return !queue.empty() || closed;
+            return !queue.empty() || (closed && queue.empty());
             }
         );
-        if (queue.empty()) {
+        if (closed && queue.empty()) {
             return { T{}, false };
         }
         T value = std::move(queue.front());
@@ -62,3 +62,4 @@ private:
 };
 
 #endif // BUFFERED_CHANNEL_H_
+
